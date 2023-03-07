@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="/static/js/products.js"></script>
+    <script>
+        const price = '{{ request.GET.price }}'; // Get the filter parameters from the query string
+        const name = '{{ request.GET.name }}';
+ 
+        
+            const form = document.getElementById('product-search-form');
+            const productList = document.getElementById('product-list');
+        
+            form.addEventListener('submit', event => {
+                event.preventDefault();
+        
+                const price = form.elements.price.value;
+                const name = form.elements.name.value;
+        
+                const url = `/api/filter/?price=${price}&name=${name}`;
+        
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        productList.innerHTML = '';
+        
+                        data.forEach(product => {
+                            const productHtml = `
+                                <div>
+                                    <h2>${product.name}</h2>
+                                    <p>Price: ${product.price}</p>
+                                    <p>quantity: ${product.default}</p>
+                                </div>
+                            `;
+                            productList.insertAdjacentHTML('beforeend', productHtml);
+                        });
+                    })
+                    .catch(error => console.error(error));
+            });
+        </script>
+        
+   
+</head>
+<body>
+    {% for product in products %}
+    <li>{{ product.name }} - {{ product.price }} - {{ product.quantity }}</li>
+{% endfor %}
+
+<form id="product-search-form">
+    <label for="price">Price:</label>
+    <input type="number" id="price" name="price" min="0">
+    <label for="name">Name:</label>
+    <input type="text" id="name" name="name">
+    <button type="submit">Search</button>
+</form>
+
+<div id="product-list">
+    
+</div>
+</body>
+</html>
